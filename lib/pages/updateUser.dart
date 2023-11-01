@@ -1,35 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class AddUser extends StatefulWidget {
-  const AddUser({super.key});
+class UpdateUser extends StatefulWidget {
+  const UpdateUser({super.key});
 
   @override
-  State<AddUser> createState() => _AddUserState();
+  State<UpdateUser> createState() => _UpdateUserState();
 }
 
-class _AddUserState extends State<AddUser> {
+class _UpdateUserState extends State<UpdateUser> {
   final bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
   String? _selectedGroup;
   final CollectionReference donor =
       FirebaseFirestore.instance.collection('donor');
   TextEditingController _donorName = TextEditingController();
   TextEditingController _donorMobile = TextEditingController();
-  void addDonor() {
+  void updateDonor(docId) {
     final data = {
       'name': _donorName.text,
       'mobile': _donorMobile.text,
       'bloodgroup': _selectedGroup
     };
-    donor.add(data);
+    donor.doc(docId).update(data).then((value) => Navigator.pop(context));
   }
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+    _donorName.text = args['name'];
+    _donorMobile.text = args['mobile'];
+    _selectedGroup = args['bloodgroup'] as String;
+    final docId = args['id'];
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Add User"),
+        title: const Text("Update User"),
         backgroundColor: Colors.red,
       ),
       body: Column(
@@ -55,6 +60,7 @@ class _AddUserState extends State<AddUser> {
           Padding(
             padding: const EdgeInsets.all(10),
             child: DropdownButtonFormField(
+                value: _selectedGroup as String,
                 decoration:
                     const InputDecoration(label: Text("Select Blood Group")),
                 items: bloodGroups
@@ -71,15 +77,14 @@ class _AddUserState extends State<AddUser> {
             padding: const EdgeInsets.all(10),
             child: ElevatedButton(
               onPressed: () {
-                addDonor();
-                Navigator.pop(context);
+                updateDonor(docId);
               },
               style: const ButtonStyle(
                   minimumSize:
                       MaterialStatePropertyAll(Size(double.infinity, 50)),
                   backgroundColor: MaterialStatePropertyAll(Colors.red)),
               child: const Text(
-                "Submit",
+                "Update",
                 style: TextStyle(fontSize: 20),
               ),
             ),

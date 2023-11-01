@@ -12,6 +12,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final CollectionReference donor =
       FirebaseFirestore.instance.collection('donor');
+  void userDelete(id) {
+    donor.doc(id).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,14 +77,25 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Row(children: [
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.popAndPushNamed(
+                                    context, '/updateuser',
+                                    arguments: {
+                                      'name': donorSnap['name'],
+                                      'mobile': donorSnap['mobile'],
+                                      'bloodgroup': donorSnap['bloodgroup'],
+                                      'id': donorSnap.id
+                                    });
+                              },
                               icon: Icon(
                                 Icons.edit,
                                 color: Colors.blue,
                                 size: 30,
                               )),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                userDelete(donorSnap.id);
+                              },
                               icon: Icon(
                                 Icons.delete,
                                 color: Colors.red,
